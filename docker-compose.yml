@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./code:/code
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - code-network
+  
+  php:
+    #image: php:7.2-fpm
+    build:
+      context: ./php
+      dockerfile: Dockerfile     
+    image: my_php
+    volumes:
+      - ./code:/code
+    networks:
+      - code-network
+  
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3307:3306
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: 123456
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - code-network
+
+
+networks:
+  code-network:
+    driver: bridge
